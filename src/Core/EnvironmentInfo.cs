@@ -1,12 +1,17 @@
 using System.Runtime.InteropServices;
 namespace Core; // корінний namespace = ім'я проєкту Core
+
 public sealed record EnvironmentReport(
 string OsDescription,
 string FrameworkDescription,
 string ProcessArchitecture,
 string DetectedRid,
 string ReportedRid,
-string BaseDirectory);
+string BaseDirectory,
+string EnvironmentOS,
+string DotNetVersion,
+string CurrentDirectory);
+
 public static class EnvironmentInfo
 {
     public static EnvironmentReport Collect() => new(
@@ -15,7 +20,10 @@ public static class EnvironmentInfo
     RuntimeInformation.ProcessArchitecture.ToString(),
     DetectRid(),
     RuntimeInformation.RuntimeIdentifier,
-    AppContext.BaseDirectory);
+    AppContext.BaseDirectory,
+    Environment.OSVersion.ToString(),
+    Environment.Version.ToString(),
+    Environment.CurrentDirectory);
     // Ручне визначення RID: показує, з чого складається рядок win-x64.
     private static string DetectRid()
         {
