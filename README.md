@@ -6,7 +6,7 @@
  ## Запуск
  dotnet build
  dotnet run --project src/Cli
- ##Середовище
+ ## Середовище
  .NET SDK 10.0, Windows 11 x64
 
  ## Додаткове завдання:
