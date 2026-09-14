@@ -10,10 +10,17 @@ string ReportedRid,
 string BaseDirectory,
 string EnvironmentOS,
 string DotNetVersion,
-string CurrentDirectory);
+string CurrentDirectory,
+string BuildNote);
 
 public static class EnvironmentInfo
 {
+#if NET10_0_OR_GREATER
+    public const string BuildNote = "збірка під net10.0";
+#else
+    public const string BuildNote = "збірка під net8.0";
+#endif
+
     public static EnvironmentReport Collect() => new(
     RuntimeInformation.OSDescription,
     RuntimeInformation.FrameworkDescription,
@@ -23,7 +30,8 @@ public static class EnvironmentInfo
     AppContext.BaseDirectory,
     Environment.OSVersion.ToString(),
     Environment.Version.ToString(),
-    Environment.CurrentDirectory);
+    Environment.CurrentDirectory,
+    BuildNote);
     // Ручне визначення RID: показує, з чого складається рядок win-x64.
     private static string DetectRid()
         {
