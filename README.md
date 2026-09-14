@@ -12,3 +12,14 @@
  ## Додаткове завдання:
  У каталозі publish для RID linux-x64 78,77 МБ
  У каталозі publish для RID win-x64 76,62 МБ 
+
+ ## Різниця self-contained vs framework-dependent:
+ Framework-dependent публікація: лише код і залежності, без runtime.
+ Self-contained публікація: каталог великий і прив’язаний до RID.
+
+
+| RID | Режим | Розмір publish | Потрібен runtime |
+| :--- | :---: | :---: | :---: |
+| win-x64 | self-contained | 153,71 | ні |
+| win-x64 | framework-dependent | 0,39 | так (.NET 10) |
+| linux-x64 | self-contained | 157,58 | ні |
