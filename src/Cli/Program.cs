@@ -31,19 +31,45 @@ if (!File.Exists(path))
 	Console.WriteLine($"Файл не знайдено: {Path.GetFullPath(path)}");
 	return 1;
 	}
-ImportResult<ProductDto> result = Path.GetExtension(path).ToLowerInvariant() switch
+object result = Path.GetExtension(path).ToLowerInvariant() switch
 {
-	".csv" => ProductCsvImporter.Load(path),
+	".csv" => MixedCsvImporter.Load(path),
 	".json" => ProductJsonImporter.Load(path),
-	_ => new ImportResult<ProductDto>([], [$"Непідтримуване розширення файлу: {Path.GetExtension(path)}"])
+	_ => new ImportResult<object>([], [$"Непідтримуване розширення файлу: {Path.GetExtension(path)}"])
 };
-Console.WriteLine($"Завантажено записів: {result.Items.Count}");
-foreach (ProductDto p in result.Items)
-Console.WriteLine($" {p.Id,-6} {p.Sku,-10} {p.Name,-26} {p.Quantity,5} {p.Unit}");
-if (result.Errors.Count > 0)
+switch (result)
 	{
-	Console.WriteLine($"Пропущено рядків: {result.Errors.Count}");
-	foreach (string e in result.Errors)
-	Console.WriteLine($" ! {e}");
+	case ImportResult<object> mixed:
+		Console.WriteLine($"Завантажено записів: {mixed.Items.Count}");
+		foreach (object item in mixed.Items)
+		{
+			switch (item)
+			{
+			case ProductDto product:
+				Console.WriteLine($" Товар: {product.Id,-6} {product.Sku,-10} {product.Name,-26} {product.Quantity,5} {product.Unit}");
+				break;
+			case WarehouseDto warehouse:
+				Console.WriteLine($" Склад: {warehouse.Id,-6} {warehouse.Name,-26} {warehouse.Address}");
+				break;
+			}
+		}
+		PrintErrors(mixed.Errors);
+		break;
+	case ImportResult<ProductDto> products:
+		Console.WriteLine($"Завантажено записів: {products.Items.Count}");
+		foreach (ProductDto product in products.Items)
+			Console.WriteLine($" Товар: {product.Id,-6} {product.Sku,-10} {product.Name,-26} {product.Quantity,5} {product.Unit}");
+		PrintErrors(products.Errors);
+		break;
 	}
+
+static void PrintErrors(IReadOnlyList<string> errors)
+	{
+	if (errors.Count > 0)
+	{
+		Console.WriteLine($"Пропущено рядків: {errors.Count}");
+		foreach (string error in errors)
+			Console.WriteLine($" ! {error}");
+	}
+}
 return 0;
