@@ -1,3 +1,4 @@
+using System.Text;
 using Core.Dto;
 namespace Core.Import;
 public static class ProductCsvImporter
@@ -8,7 +9,7 @@ public static ImportResult<ProductDto> Load(string path)
         {
         var items = new List<ProductDto>();
         var errors = new List<string>();
-        string[] lines = File.ReadAllLines(path);
+        string[] lines = File.ReadAllLines(path, Encoding.UTF8);
         for (int i = 0; i < lines.Length; i++)
             {
             int number = i + 1;
