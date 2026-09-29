@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
     <None Include="..\..\data\sample.csv" Link="data\sample.csv" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\data\sample.json" Link="data\sample.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <PropertyGroup>

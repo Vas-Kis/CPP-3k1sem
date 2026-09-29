@@ -23,15 +23,20 @@ else
 	Console.WriteLine($"Примітка збірки : {report.BuildNote}");
 }*/
 
-string path = args.Length > 0
+string path = Path.GetFullPath(args.Length > 0
 	? args[0]
-	: Path.Combine(AppContext.BaseDirectory, "data", "sample.csv");
+	: Path.Combine(AppContext.BaseDirectory, "data", "sample.csv"));
 if (!File.Exists(path))
 	{
 	Console.WriteLine($"Файл не знайдено: {Path.GetFullPath(path)}");
 	return 1;
 	}
-ImportResult<ProductDto> result = ProductCsvImporter.Load(path);
+ImportResult<ProductDto> result = Path.GetExtension(path).ToLowerInvariant() switch
+{
+	".csv" => ProductCsvImporter.Load(path),
+	".json" => ProductJsonImporter.Load(path),
+	_ => new ImportResult<ProductDto>([], [$"Непідтримуване розширення файлу: {Path.GetExtension(path)}"])
+};
 Console.WriteLine($"Завантажено записів: {result.Items.Count}");
 foreach (ProductDto p in result.Items)
 Console.WriteLine($" {p.Id,-6} {p.Sku,-10} {p.Name,-26} {p.Quantity,5} {p.Unit}");
