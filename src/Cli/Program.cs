@@ -41,6 +41,7 @@ switch (result)
 	{
 	case ImportResult<object> mixed:
 		Console.WriteLine($"Завантажено записів: {mixed.Items.Count}");
+		PrintStatistics(mixed.Items.Count, mixed.Errors.Count);
 		foreach (object item in mixed.Items)
 		{
 			switch (item)
@@ -57,10 +58,18 @@ switch (result)
 		break;
 	case ImportResult<ProductDto> products:
 		Console.WriteLine($"Завантажено записів: {products.Items.Count}");
+		PrintStatistics(products.Items.Count, products.Errors.Count);
 		foreach (ProductDto product in products.Items)
 			Console.WriteLine($" Товар: {product.Id,-6} {product.Sku,-10} {product.Name,-26} {product.Quantity,5} {product.Unit}");
 		PrintErrors(products.Errors);
 		break;
+	}
+
+static void PrintStatistics(int accepted, int skipped)
+	{
+	int total = accepted + skipped;
+	double errorPercentage = total == 0 ? 0 : skipped * 100.0 / total;
+	Console.WriteLine($"Статистика імпорту: усього {total} / прийнято {accepted} / пропущено {skipped} / % помилок {errorPercentage:F2}%");
 	}
 
 static void PrintErrors(IReadOnlyList<string> errors)
