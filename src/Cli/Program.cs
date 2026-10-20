@@ -1,84 +1,31 @@
-﻿using System.Text.Json;
-using Core;
-using Core.Dto;
-using Core.Import;
+﻿using Core.Domain;
 
-EnvironmentReport report = EnvironmentInfo.Collect();
+Console.WriteLine("=== Сценарій 1: успіх ===");
+Product product = Product.Create("P-001", "sku-001", "Цемент М400 25кг", "шт", -5);
+Console.WriteLine(product);
+product.RegisterArrival(50);
+product.Issue(30);
+Console.WriteLine(product);
+Console.WriteLine();
+Console.WriteLine("=== Сценарій 2: порушення інваріантів ===");
+TryDo("видача більша за залишок", () => product.Issue(1000));
+TryDo("порожній SKU", () => Product.Create("P-002", " ", "Пісок", "т", 10));
+TryDo("від'ємний залишок", () => Product.Create("P-003", "SKU-003", "Цегла", "шт", -5));
+/*product._quantity = 999;   // CS0122: '_quantity' is inaccessible due to its protection level
+product.Quantity = 999;    // CS0200: Property 'Quantity' cannot be assigned to -- it is read only
+product.Sku = "x";         // CS0200: властивість лише для читання
+new Product("1","s","n","u",1); // CS0122: конструктор private*/
 
-/*if (args.Contains("--json"))
+
+static void TryDo(string title, Action action)
 {
-	Console.WriteLine(JsonSerializer.Serialize(report));
+    try
+    {
+        action();
+        Console.WriteLine($" {title}: виняток НЕ спрацював — інваріант відсутній!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($" {title}: {ex.GetType().Name} — {ex.Message}");
+    }
 }
-else
-{
-	Console.WriteLine("CrossApp – інформація про середовище");
-	Console.WriteLine(new string('-', 52));
-
-	Console.WriteLine($"ОС : {report.OsDescription}");
-	Console.WriteLine($"Runtime : {report.FrameworkDescription}");
-	Console.WriteLine($"Архітектура : {report.ProcessArchitecture}");
-	Console.WriteLine($"RID (визначено): {report.DetectedRid}");
-	Console.WriteLine($"RID (від .NET) : {report.ReportedRid}");
-	Console.WriteLine($"Каталог : {report.BaseDirectory}");
-	Console.WriteLine($"Примітка збірки : {report.BuildNote}");
-}*/
-
-string path = Path.GetFullPath(args.Length > 0
-	? args[0]
-	: Path.Combine(AppContext.BaseDirectory, "data", "sample.csv"));
-if (!File.Exists(path))
-	{
-	Console.WriteLine($"Файл не знайдено: {Path.GetFullPath(path)}");
-	return 1;
-	}
-object result = Path.GetExtension(path).ToLowerInvariant() switch
-{
-	".csv" => MixedCsvImporter.Load(path),
-	".json" => ProductJsonImporter.Load(path),
-	_ => new ImportResult<object>([], [$"Непідтримуване розширення файлу: {Path.GetExtension(path)}"])
-};
-switch (result)
-	{
-	case ImportResult<object> mixed:
-		Console.WriteLine($"Завантажено записів: {mixed.Items.Count}");
-		PrintStatistics(mixed.Items.Count, mixed.Errors.Count);
-		foreach (object item in mixed.Items)
-		{
-			switch (item)
-			{
-			case ProductDto product:
-				Console.WriteLine($" Товар: {product.Id,-6} {product.Sku,-10} {product.Name,-26} {product.Quantity,5} {product.Unit}");
-				break;
-			case WarehouseDto warehouse:
-				Console.WriteLine($" Склад: {warehouse.Id,-6} {warehouse.Name,-26} {warehouse.Address}");
-				break;
-			}
-		}
-		PrintErrors(mixed.Errors);
-		break;
-	case ImportResult<ProductDto> products:
-		Console.WriteLine($"Завантажено записів: {products.Items.Count}");
-		PrintStatistics(products.Items.Count, products.Errors.Count);
-		foreach (ProductDto product in products.Items)
-			Console.WriteLine($" Товар: {product.Id,-6} {product.Sku,-10} {product.Name,-26} {product.Quantity,5} {product.Unit}");
-		PrintErrors(products.Errors);
-		break;
-	}
-
-static void PrintStatistics(int accepted, int skipped)
-	{
-	int total = accepted + skipped;
-	double errorPercentage = total == 0 ? 0 : skipped * 100.0 / total;
-	Console.WriteLine($"Статистика імпорту: усього {total} / прийнято {accepted} / пропущено {skipped} / % помилок {errorPercentage:F2}%");
-	}
-
-static void PrintErrors(IReadOnlyList<string> errors)
-	{
-	if (errors.Count > 0)
-	{
-		Console.WriteLine($"Пропущено рядків: {errors.Count}");
-		foreach (string error in errors)
-			Console.WriteLine($" ! {error}");
-	}
-}
-return 0;

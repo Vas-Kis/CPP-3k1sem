@@ -9,6 +9,7 @@ public static ImportResult<ProductDto> Load(string path)
         {
         var items = new List<ProductDto>();
         var errors = new List<string>();
+        var itemRows = new List<int>();
         string[] lines = File.ReadAllLines(path, Encoding.UTF8);
         for (int i = 0; i < lines.Length; i++)
             {
@@ -22,13 +23,14 @@ public static ImportResult<ProductDto> Load(string path)
                 {
                 case ParseOk ok:
                 items.Add(ok.Value);
+                itemRows.Add(number);
                 break;
                 case ParseFailed failed:
                 errors.Add($"рядок {number}: {failed.Reason}");
                 break;
                 }
             }
-        return new ImportResult<ProductDto>(items, errors);
+        return new ImportResult<ProductDto>(items, errors, itemRows);
         }
 private static ParseOutcome ParseLine(string line)
 /*Патерн — це синтаксична конструкція, яка перевіряє, чи відповідають дані певній формі, 
