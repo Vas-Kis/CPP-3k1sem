@@ -1,14 +1,14 @@
-using Core.Domain;
+﻿using Core.Domain;
 using Core.Dto;
 
 Console.WriteLine("=== Сценарій 1: успіх ===");
-Product product = Product.Create("P-001", "sku-001", "Цемент М400 25кг", "шт", 5);
+Product product = Product.Create("P-001", "sku-001", "Цемент М400 25кг", "шт", 5); //Definition of done #3
 Console.WriteLine(product);
 product.RegisterArrival(50);
 product.Issue(30);
 Console.WriteLine(product);
 Console.WriteLine();
-Console.WriteLine("=== Сценарій 2: порушення інваріантів ===");
+Console.WriteLine("=== Сценарій 2: порушення інваріантів ==="); // Definition of done #7
 TryDo("видача більша за залишок", () => product.Issue(1000));
 TryDo("порожній SKU", () => Product.Create("P-002", " ", "Пісок", "т", 10));
 TryDo("від'ємний залишок", () => Product.Create("P-003", "SKU-003", "Цегла", "шт", -5));

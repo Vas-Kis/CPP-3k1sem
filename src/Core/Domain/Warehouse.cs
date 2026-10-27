@@ -4,12 +4,12 @@ namespace Core.Domain;
 
 public sealed class Warehouse
 {
-    private readonly List<Product> _products = [];
+    private readonly List<Product> _products = []; // Definition of done #2, 
 
     public string Id { get; }
     public string Name { get; }
     public string Address { get; }
-    public IReadOnlyList<Product> Products => _products.AsReadOnly();
+    public IReadOnlyList<Product> Products => _products.AsReadOnly(); // Definition of done #2.1, 8
 
     private Warehouse(string id, string name, string address)
     {
