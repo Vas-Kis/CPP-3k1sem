@@ -26,18 +26,13 @@ Console.WriteLine($"Створено сутностей: {converted.Items.Count}
 foreach (string error in converted.Errors)
     Console.WriteLine($" ! {error}");
 Console.WriteLine();
-Console.WriteLine("=== Сценарій 4: ліміт відкритих видач читача ===");
-Reader reader = Reader.Create("R-001", "Котакбас");
-BookCopy[] copies = Enumerable.Range(1, Reader.MaximumOpenIssues + 1)
-    .Select(number => BookCopy.Create($"C-{number:D3}", $"Книга {number}"))
-    .ToArray();
-foreach (BookCopy copy in copies.Take(Reader.MaximumOpenIssues))
-    reader.Issue(copy);
-TryDo("шоста відкрита видача", () => reader.Issue(copies[^1]));
-Console.WriteLine($"Відкритих видач після відмови: {reader.OpenIssueCount}");
-reader.Return(copies[0]);
-reader.Issue(copies[^1]);
-Console.WriteLine($"Після повернення та нової видачі: {reader.OpenIssueCount}");
+Console.WriteLine("=== Сценарій 4: унікальність SKU на складі ===");
+Warehouse warehouse = Warehouse.Create("W-001", "Центральний склад", "Київ");
+Product warehouseProduct = Product.Create("P-010", "sku-010", "Цемент", "шт", 100);
+warehouse.AddProduct(warehouseProduct);
+TryDo("дубльований SKU на складі", () =>
+    warehouse.AddProduct(Product.Create("P-011", "SKU-010", "Інший цемент", "мішок", 20)));
+Console.WriteLine($"Товарів на складі: {warehouse.Products.Count}");
 Console.WriteLine();
 Console.WriteLine("=== Сценарій 5: переходи станів замовлення ===");
 Order order = Order.Create("O-001");
@@ -58,8 +53,12 @@ static void TryDo(string title, Action action)
         action();
         Console.WriteLine($" {title}: виняток НЕ спрацював — інваріант відсутній!");
     }
-    catch (Exception exception)
+    catch (ArgumentException exception)
     {
-        Console.WriteLine($" {title}: {exception.GetType().Name} — {exception.Message}");
+        Console.WriteLine($" {title}: {exception.Message}");
+    }
+    catch (InvalidOperationException exception)
+    {
+        Console.WriteLine($" {title}: {exception.Message}");
     }
 }

@@ -22,14 +22,16 @@ private Product(string id, string sku, string name, string unit, int quantity)
 public static Product Create(string id, string sku, string name, string unit, int quantity) //Фабричний метод перевірки
     {
     if (string.IsNullOrWhiteSpace(id))
-    throw new ArgumentException("Ідентифікатор обов'язковий", nameof(id));
+throw new ArgumentException($"Ідентифікатор обов'язковий; отримано {Describe(id)}", nameof(id));
     if (string.IsNullOrWhiteSpace(sku))
-    throw new ArgumentException("SKU не може бути порожнім", nameof(sku));
+throw new ArgumentException($"SKU не може бути порожнім; отримано {Describe(sku)}", nameof(sku));
     if (string.IsNullOrWhiteSpace(name))
-    throw new ArgumentException("Назва не може бути порожньою", nameof(name));
-    if (quantity < 0)
-    throw new ArgumentOutOfRangeException(nameof(quantity), quantity,
-    "Початковий залишок не може бути від'ємним");
+throw new ArgumentException($"Назва не може бути порожньою; отримано {Describe(name)}", nameof(name));
+if (unit is null)
+throw new ArgumentException("Одиниця виміру не може бути null; отримано <null>", nameof(unit));
+if (quantity < 0)
+throw new ArgumentOutOfRangeException(nameof(quantity), quantity,
+$"Початковий залишок не може бути від'ємним; отримано {quantity}");
     return new Product(id.Trim(), sku.Trim().ToUpperInvariant(),
     name.Trim(), unit.Trim(), quantity);
     }
@@ -37,17 +39,20 @@ public void RegisterArrival(int amount)
     {
     if (amount <= 0)
     throw new ArgumentOutOfRangeException(nameof(amount), amount,
-    "Кількість приходу має бути більшою за нуль");
+    $"Кількість приходу має бути більшою за нуль; отримано {amount}");
+    if (amount > int.MaxValue - _quantity)
+    throw new InvalidOperationException(
+    $"Неможливо зареєструвати прихід {amount} для SKU '{Sku}': залишок {_quantity} перевищить максимальне значення {int.MaxValue}");
     _quantity += amount;
     }
 public void Issue(int amount)
     {
     if (amount <= 0)
     throw new ArgumentOutOfRangeException(nameof(amount), amount,
-    "Кількість видачі має бути більшою за нуль");
+    $"Кількість видачі має бути більшою за нуль; отримано {amount}");
     if (amount > _quantity)
     throw new InvalidOperationException(
-    $"Не можна видати {amount}: залишок {Sku} = {_quantity}");
+    $"Недостатній залишок для SKU '{Sku}': запитано {amount}, доступно {_quantity}");
     _quantity -= amount;
     }
 // Мапінг у формат тижня 3 і назад — знадобиться сховищу тижня 5.
@@ -58,7 +63,9 @@ public static ImportResult<Product> FromImportResult(ImportResult<ProductDto> im
     {
     ArgumentNullException.ThrowIfNull(importResult);
     if (importResult.ItemRows is not null && importResult.ItemRows.Count != importResult.Items.Count)
-        throw new ArgumentException("Кількість номерів рядків має відповідати кількості записів", nameof(importResult));
+        throw new ArgumentException(
+            $"Кількість номерів рядків ({importResult.ItemRows.Count}) має відповідати кількості записів ({importResult.Items.Count})",
+            nameof(importResult));
 
     var products = new List<Product>();
     var errors = new List<string>(importResult.Errors);
@@ -67,6 +74,11 @@ public static ImportResult<Product> FromImportResult(ImportResult<ProductDto> im
         {
         ProductDto dto = importResult.Items[i];
         int row = importResult.ItemRows is null ? i + 1 : importResult.ItemRows[i];
+        if (dto is null)
+            {
+            errors.Add($"рядок {row}: товарний запис не може бути null; отримано <null>");
+            continue;
+            }
         try
             {
             products.Add(FromDto(dto));
@@ -80,5 +92,6 @@ public static ImportResult<Product> FromImportResult(ImportResult<ProductDto> im
 
     return new ImportResult<Product>(products, errors, itemRows);
     }
+private static string Describe(string? value) => value is null ? "<null>" : $"'{value}'";
 public override string ToString() => $"{Id} [{Sku}] {Name} — {Quantity} {Unit}";
 }

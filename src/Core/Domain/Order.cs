@@ -14,7 +14,9 @@ public sealed class Order
     public static Order Create(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException("Ідентифікатор замовлення обов'язковий", nameof(id));
+            throw new ArgumentException(
+                $"Ідентифікатор замовлення обов'язковий; отримано {(id is null ? "<null>" : $"'{id}'")}",
+                nameof(id));
 
         return new Order(id.Trim());
     }
