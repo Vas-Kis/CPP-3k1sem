@@ -4,17 +4,21 @@ using Core.Domain;
 using Core.Services;
 using Core.Storage;
 
+//Definition of done 2
+//Definition of done 4
 bool useFile = args.Contains("--file", StringComparer.OrdinalIgnoreCase);
 string dataPath = Path.Combine(AppContext.BaseDirectory, "data", "catalog.json");
 ICatalogStore store = useFile
     ? new FileCatalogStore(dataPath)
     : new InMemoryCatalogStore(SampleData.Products());
+//Definition of done 7
 var service = new CatalogService(store);
 
 Console.WriteLine($"Сховище: {store.GetType().Name}");
 
 try
 {
+    //Definition of done 5
     Product created = service.Add("SKU-101", "Кабель UTP cat6", "м", 50);
     service.Receive(created.Id, 25);
     service.Issue(created.Id, 10);

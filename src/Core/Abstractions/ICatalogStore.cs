@@ -1,7 +1,8 @@
-using Core.Domain;
+using Core.Domain; 
 
 namespace Core.Abstractions;
 
+//Definition of done 1
 public interface ICatalogStore
 {
     IReadOnlyList<Product> List();

@@ -3,6 +3,7 @@ using Core.Domain;
 
 namespace Core.Services;
 
+//Definition of done 3
 public sealed class CatalogService
 {
     private readonly ICatalogStore _store;
@@ -37,6 +38,7 @@ public sealed class CatalogService
 
     public Product? Find(string id) => _store.GetById(id);
 
+    //Definition of done 6
     private Product GetRequired(string id) =>
         _store.GetById(id) ?? throw new InvalidOperationException($"Немає запису з id={id}.");
 }
