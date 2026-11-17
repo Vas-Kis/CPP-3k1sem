@@ -11,7 +11,6 @@ string dataPath = Path.Combine(AppContext.BaseDirectory, "data", "catalog.json")
 ICatalogStore store = useFile
     ? new FileCatalogStore(dataPath)
     : new InMemoryCatalogStore(SampleData.Products());
-//Definition of done 7
 var service = new CatalogService(store);
 
 Console.WriteLine($"Сховище: {store.GetType().Name}");

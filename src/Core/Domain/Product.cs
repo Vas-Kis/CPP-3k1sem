@@ -19,9 +19,9 @@ private Product(string id, string sku, string name, string unit, int quantity)
     _quantity = quantity;
     }
 // Єдиний спосіб створити товар: усі перевірки тут.
-public static Product Create(string id, string sku, string name, string unit, int quantity) // Definition of done #3
+public static Product Create(string id, string sku, string name, string unit, int quantity)
     {
-    if (string.IsNullOrWhiteSpace(id)) // Definition of done #4
+    if (string.IsNullOrWhiteSpace(id))
 throw new ArgumentException($"Ідентифікатор обов'язковий; отримано {Describe(id)}", nameof(id));
     if (string.IsNullOrWhiteSpace(sku))
 throw new ArgumentException($"SKU не може бути порожнім; отримано {Describe(sku)}", nameof(sku));
@@ -35,7 +35,7 @@ $"Початковий залишок не може бути від'ємним; 
     return new Product(id.Trim(), sku.Trim().ToUpperInvariant(),
     name.Trim(), unit.Trim(), quantity);
     }
-public void RegisterArrival(int amount) // Definition of done #5
+public void RegisterArrival(int amount)
     {
     if (amount <= 0)
     throw new ArgumentOutOfRangeException(nameof(amount), amount,
@@ -55,7 +55,6 @@ public void Issue(int amount)
     $"Недостатній залишок для SKU '{Sku}': запитано {amount}, доступно {_quantity}");
     _quantity -= amount;
     }
-// Definition of done #6: перетворення на DTO та з DTO
 public ProductDto ToDto() => new(Id, Sku, Name, Unit, Quantity);
 public static Product FromDto(ProductDto dto) =>
 Create(dto.Id, dto.Sku, dto.Name, dto.Unit, dto.Quantity);
