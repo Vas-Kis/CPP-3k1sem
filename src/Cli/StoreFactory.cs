@@ -4,13 +4,8 @@ using Core.Storage;
 
 namespace Cli;
 
-// lab05 add03 - фабрика сховищ. Лежить у проєкті Cli, тому конкретні класи
-// сховищ, як і раніше, згадуються лише в composition root, а не в Core.
 public static class StoreFactory
 {
-    // lab05 add03 - вибір реалізації за аргументами командного рядка:
-    // --file  -> FileCatalogStore (data/catalog.json), інакше InMemoryCatalogStore;
-    // --cache -> вибране сховище загортається в декоратор CachingCatalogStore (add01).
     public static ICatalogStore Create(string[] args)
     {
         ArgumentNullException.ThrowIfNull(args);

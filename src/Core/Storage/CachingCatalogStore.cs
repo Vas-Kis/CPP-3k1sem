@@ -3,25 +3,20 @@ using Core.Domain;
 
 namespace Core.Storage;
 
-// lab05 add01 - декоратор: приймає інший ICatalogStore у конструкторі,
-// реалізує той самий контракт і додає нову поведінку — кешування читань.
 public sealed class CachingCatalogStore : ICatalogStore
 {
     private readonly ICatalogStore _inner;
     private readonly Dictionary<string, Product?> _byId = new(StringComparer.OrdinalIgnoreCase);
     private IReadOnlyList<Product>? _list;
 
-    // lab05 add01 - залежність від абстракції, а не від конкретного сховища.
     public CachingCatalogStore(ICatalogStore inner)
     {
         _inner = inner ?? throw new ArgumentNullException(nameof(inner));
     }
 
-    // lab05 add01 - лічильники для демонстрації роботи кешу.
     public int Hits { get; private set; }
     public int Misses { get; private set; }
 
-    // lab05 add01 - повторні виклики List() не звертаються до внутрішнього сховища.
     public IReadOnlyList<Product> List()
     {
         if (_list is not null)
@@ -35,7 +30,6 @@ public sealed class CachingCatalogStore : ICatalogStore
         return _list;
     }
 
-    // lab05 add01 - кешується і знайдений запис, і його відсутність (null).
     public Product? GetById(string id)
     {
         if (_byId.TryGetValue(id, out Product? cached))
@@ -50,7 +44,6 @@ public sealed class CachingCatalogStore : ICatalogStore
         return product;
     }
 
-    // lab05 add01 - зміни передаються внутрішньому сховищу, після чого кеш інвалідується.
     public void Add(Product item)
     {
         _inner.Add(item);
