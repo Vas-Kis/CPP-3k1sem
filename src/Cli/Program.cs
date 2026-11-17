@@ -1,4 +1,4 @@
-using Core;
+using Cli;
 using Core.Abstractions;
 using Core.Domain;
 using Core.Services;
@@ -6,11 +6,9 @@ using Core.Storage;
 
 //Definition of done 2
 //Definition of done 4
-bool useFile = args.Contains("--file", StringComparer.OrdinalIgnoreCase);
-string dataPath = Path.Combine(AppContext.BaseDirectory, "data", "catalog.json");
-ICatalogStore store = useFile
-    ? new FileCatalogStore(dataPath)
-    : new InMemoryCatalogStore(SampleData.Products());
+// lab05 add03 - вибір сховища винесено у StoreFactory.Create(args) (src/Cli/StoreFactory.cs).
+// Раніше тут був тернарний вибір FileCatalogStore / InMemoryCatalogStore прямо в Program.cs.
+ICatalogStore store = StoreFactory.Create(args);
 var service = new CatalogService(store);
 
 Console.WriteLine($"Сховище: {store.GetType().Name}");
@@ -31,7 +29,20 @@ try
     foreach (Product product in service.All())
         Console.WriteLine($"  {product.Id}  {product.Sku,-10} {product.Name,-24} {product.Quantity,5} {product.Unit}");
 
+    // lab05 add02 - пошук за умовою Func<Product, bool>.
+    Console.WriteLine("Пошук: товари з залишком менше 50:");
+    foreach (Product product in service.Find(p => p.Quantity < 50))
+        Console.WriteLine($"  {product.Id}  {product.Sku,-10} {product.Name,-24} {product.Quantity,5} {product.Unit}");
+
     TryDo("отримання неіснуючого товару", () => service.Receive("missing-product", 1));
+
+    // lab05 add01 - повторні читання обслуговує декоратор CachingCatalogStore (режим --cache).
+    if (store is CachingCatalogStore caching)
+    {
+        service.All();
+        service.Find(created.Id);
+        Console.WriteLine($"Кеш: влучань {caching.Hits}, промахів {caching.Misses}");
+    }
 }
 catch (ArgumentException exception)
 {

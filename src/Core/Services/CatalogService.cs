@@ -38,6 +38,14 @@ public sealed class CatalogService
 
     public Product? Find(string id) => _store.GetById(id);
 
+    // lab05 add02 - пошук за довільною умовою Func<Product, bool>.
+    // Фільтрація виконується в сервісі над List(), тому контракт ICatalogStore не розширюється.
+    public IReadOnlyList<Product> Find(Func<Product, bool> predicate)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+        return _store.List().Where(predicate).ToList();
+    }
+
     //Definition of done 6
     private Product GetRequired(string id) =>
         _store.GetById(id) ?? throw new InvalidOperationException($"Немає запису з id={id}.");
