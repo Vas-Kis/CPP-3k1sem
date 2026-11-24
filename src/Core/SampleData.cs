@@ -4,6 +4,7 @@ namespace Core;
 
 public static class SampleData
 {
+    // lab07 Step 5, DoD 8 - 20 записів із різними одиницями та залишками.
     public static IReadOnlyList<Product> Products() =>
     [
         Product.Create("P-001", "SKU-001", "Цемент М400", "мішок", 120),
@@ -21,6 +22,8 @@ public static class SampleData
         Product.Create("P-013", "SKU-013", "Саморізи 50 мм", "коробка", 32),
         Product.Create("P-014", "SKU-014", "Ґрунтовка глибока", "каністра", 16),
         Product.Create("P-015", "SKU-015", "Профіль сталевий", "шт", 210),
+        // lab07 Step 5 - додані записи: три із залишком менше 10 для report-low (SKU-016, SKU-017, SKU-020),
+        // SKU-019 має такий самий залишок, як SKU-011 (140), - для перевірки другого ключа в топ-5.
         Product.Create("P-016", "SKU-016", "Цвяхи 100 мм", "коробка", 7),
         Product.Create("P-017", "SKU-017", "Двері міжкімнатні", "шт", 4),
         Product.Create("P-018", "SKU-018", "Клей для плитки", "мішок", 85),

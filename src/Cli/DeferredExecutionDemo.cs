@@ -2,6 +2,11 @@ using Core.Domain;
 
 namespace Cli;
 
+// lab07 Step 3, DoD 6 - демонстрація відкладеного виконання (пояснення також є в README).
+// lab07 Step 6 - Where лише описує запит; він виконується під час кожного виклику Count() і під час ToList().
+// Перший Count() дав 3, а другий - 4, бо між ними до source додано SKU-999 із залишком 3,
+// і другий виклик заново перебрав уже змінене джерело. ToList() зафіксував результат в окремому списку,
+// тому source.Clear() на snapshot не впливає.
 public static class DeferredExecutionDemo
 {
     public static void Run(IEnumerable<Product> items)
