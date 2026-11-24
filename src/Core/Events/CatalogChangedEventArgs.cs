@@ -1,7 +1,5 @@
 namespace Core.Events;
 
-// lab06 DoD 1 - тип даних події в Core: успадковує EventArgs і містить
-// ідентифікатор товару, вид зміни, дельту кількості та залишок після зміни.
 public sealed class CatalogChangedEventArgs(
     string id, CatalogChangeKind kind, int delta, int quantityAfter) : EventArgs
 {
